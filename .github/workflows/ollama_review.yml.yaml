@@ -2,8 +2,7 @@ name: Automated Ollama Code Review
 
 on:
   pull_request:
-    branches:
-      - main
+    types: [opened, synchronize, reopened]
 
 jobs:
   ollama_review:
@@ -16,7 +15,7 @@ jobs:
       - name: Get modified files
         id: get-modified-files
         uses: tj-actions/changed-files@v43
-        
+
       - name: List all changed files
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}

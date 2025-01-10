@@ -26,7 +26,8 @@ jobs:
         run: |
           for file in ${ALL_CHANGED_FILES}; do
             echo "$file was changed"
-            echo cat $file
+            echo "Contents of $file:"
+            cat "$file" || echo "Failed to read $file"
           done
 
       # - name: Review modified files

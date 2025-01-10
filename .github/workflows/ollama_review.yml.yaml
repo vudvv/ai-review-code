@@ -66,6 +66,8 @@ jobs:
             comments="Ollama Code Review for \`$file\`: All good!"
           else
             comments="Ollama Code Review for \`$file\`:\n\n$review"
+            # Use echo -e to interpret \n as newlines
+            comments=$(echo -e "$comments")
           fi
 
           gh pr comment ${{ github.event.pull_request.number }} --body "${comments}"

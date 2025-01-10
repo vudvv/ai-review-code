@@ -1,0 +1,31 @@
+name: Automated Ollama Code Review
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ollama_review:
+    runs-on: self-hosted
+    name: Ollama Code Review Job
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Get modified files
+        id: get-modified-files
+        uses: tj-actions/changed-files@v43
+
+      - name: Review modified files
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          # curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "Review the following file:let a = 0", "stream": false}' | python3 -c "import sys, json; print(json.load(sys.stdin)['response'])"
+          modified_file_review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "Review the following file:let a = 0", "stream": false}' | python3 -c "import sys, json; print(json.load(sys.stdin)['response'])")
+          file_comment="Ollama Code Review for \`$file\`:\n\n$modified_file_review"
+          echo "$file_comment" >> ollama_review.txt
+
+
+          gh pr comment ${{ github.event.pull_request.number }} --body "$(cat ollama_review.txt)"
+        shell: bash

@@ -2,7 +2,8 @@ name: Automated Ollama Code Review
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches:
+      - main
 
 jobs:
   ollama_review:
@@ -15,7 +16,10 @@ jobs:
       - name: Get modified files
         id: get-modified-files
         uses: tj-actions/changed-files@v43
-
+        with:
+          # This allows us to compare against the base branch, which is 'main'
+          target-branch: main
+        
       - name: List all changed files
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}

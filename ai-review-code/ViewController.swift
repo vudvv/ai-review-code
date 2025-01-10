@@ -12,6 +12,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
          sum()
+         let a = 0
     }
 
     func sum() {

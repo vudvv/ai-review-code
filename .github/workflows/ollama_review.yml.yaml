@@ -53,7 +53,7 @@ jobs:
           # test 2
           for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
           echo $file
-          content=git diff origin/main -- "$file" || echo "Failed to get diff for $file"
+          content=$(git diff origin/main -- "$file" || echo "Failed to get diff for $file")
           content=${content//\'/\'\'}
           content=${content//\"/\\\"}
           content=$(echo "$content" | tr '\n' ' ')

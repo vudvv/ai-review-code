@@ -32,25 +32,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
         run: |
-          # curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "Review the following file:let a = 0", "stream": false}' | python3 -c "import sys, json; print(json.load(sys.stdin)['response'])"
-          # modified_file_review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "Review the following file:let a = 0", "stream": false}' | python3 -c "import sys, json; print(json.load(sys.stdin)['response'])")
-          # file_comment="Ollama Code Review for \`$file\`:\n\n$modified_file_review"
-          # echo "$file_comment" >> ollama_review.txt
-          # Ensure the changed files list is available
-
-          # test 1
-          # for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
-          # modified_file_review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "Review this code, provide suggestions for improvement, coding best practices, improve readability, and maintainability. Remove any code smells and anti-patterns. Provide code examples for your suggestion.:\n\n```\n$(cat $file)\n```", "stream": false}' | python3 -c "import sys, json; print(json.load(sys.stdin)['response'])")
-          # file_comment="Ollama Code Review for \`$file\`:\n\n$modified_file_review"
-          # echo "$file_comment" >> ollama_review.txt
-          # done
-
-          # # Post review comments to the pull request
-          # if [ -s ollama_review.txt ]; then
-          #   gh pr comment ${{ github.event.pull_request.number }} --body "$(cat ollama_review.txt)"
-          # fi
-
-          # test 2
           for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
           echo $file
           content=$(git diff origin/main -- "$file" || echo "Failed to get diff for $file")

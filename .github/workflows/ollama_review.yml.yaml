@@ -41,7 +41,7 @@ jobs:
           content=${content//\"/\\\"}
           content=$(echo "$content" | tr '\n' ' ')
           echo $content
-          review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, and maintainability.:\n\n```\n'"${content}"'\n```", "stream": false}' | jq -r '.response')
+          review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "Review code return concise content:\n\n```\n'"${content}"'\n```", "stream": false}' | jq -r '.response')
           echo $review
 
           if [[ $review == "null" ]]

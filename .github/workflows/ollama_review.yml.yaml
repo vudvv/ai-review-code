@@ -51,6 +51,12 @@ jobs:
             comments=$(echo -e "$comments")
           fi
 
-          gh pr comment ${{ github.event.pull_request.number }} --body "${comments}"
+          # gh pr comment ${{ github.event.pull_request.number }} --body "${comments}"
+          # Add the comment to the pull request using GitHub API
+          curl -s -X POST \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -d '{"body": "'"$comments"'"}' \
+            https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments
           done
         shell: bash

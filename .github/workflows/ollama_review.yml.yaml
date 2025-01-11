@@ -43,11 +43,11 @@ jobs:
           content=${content//\'/\'\'}
           content=${content//\"/\\\"}
           content=$(echo "$content" | tr '\n' ' ')
-          # echo $content
+          echo $content
           curl="curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "Review code return concise content:\n\n```\n'"${content}"'\n```", "stream": false}'"
           echo curl
-          review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "Review code return concise content:\n\n```\n'"${content}"'\n```", "stream": false}' | jq -r '.response')
-          echo $review
+          # review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "Review code return concise content:\n\n```\n'"${content}"'\n```", "stream": false}' | jq -r '.response')
+          # echo $review
 
           # if [[ $review == "null" ]]
           # then

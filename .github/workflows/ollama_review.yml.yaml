@@ -35,30 +35,30 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
-          echo $file
+          # echo $file
           content=$(git diff origin/main -- "$file" || echo "Failed to get diff for $file")
           content=${content//\'/\'\'}
           content=${content//\"/\\\"}
           content=$(echo "$content" | tr '\n' ' ')
-          echo $content
+          # echo $content
           review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "Review code return concise content:\n\n```\n'"${content}"'\n```", "stream": false}' | jq -r '.response')
           echo $review
 
-          if [[ $review == "null" ]]
-          then
-            comments="Ollama Code Review for \`$file\`: All good!"
-          else
-            comments="Ollama Code Review for \`$file\`:\n\n$review"
-            # Use echo -e to interpret \n as newlines
-            comments=$(echo -e "$comments")
-          fi
+          # if [[ $review == "null" ]]
+          # then
+          #   comments="Ollama Code Review for \`$file\`: All good!"
+          # else
+          #   comments="Ollama Code Review for \`$file\`:\n\n$review"
+          #   # Use echo -e to interpret \n as newlines
+          #   comments=$(echo -e "$comments")
+          # fi
 
-          # gh pr comment ${{ github.event.pull_request.number }} --body "${comments}"
-          # Add the comment to the pull request using GitHub API
-          curl -s -X POST \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            -d '{"body": "'"$comments"'"}' \
-            https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments
+          # # gh pr comment ${{ github.event.pull_request.number }} --body "${comments}"
+          # # Add the comment to the pull request using GitHub API
+          # curl -s -X POST \
+          #   -H "Authorization: Bearer $GITHUB_TOKEN" \
+          #   -H "Accept: application/vnd.github+json" \
+          #   -d '{"body": "'"$comments"'"}' \
+          #   https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments
           done
         shell: bash

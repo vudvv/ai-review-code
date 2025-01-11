@@ -31,6 +31,8 @@ jobs:
       - name: Review modified files
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
         run: |
           for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
           echo $file

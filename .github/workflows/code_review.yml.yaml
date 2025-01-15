@@ -17,46 +17,45 @@ jobs:
         id: get-modified-files
         uses: tj-actions/changed-files@v43
         with:
+          # Avoid using single or double quotes for multiline patterns
           files: |
             **.swift
             **.kt
             **.java
 
+      - name: List all changed files
+        env:
+          ALL_CHANGED_FILES: ${{ steps.get-modified-files.outputs.all_changed_files }}
+        run: |
+          for file in ${ALL_CHANGED_FILES}; do
+            echo "$file was changed"
+          done
+
       - name: Review modified files
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OLLAMA_HOST: http://127.0.0.1:11434
-          OLLAMA_MODEL: llama3.2
+          GITHUB_TOKEN: ${{ secrets.Token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
         run: |
           for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
-            # Get the current commit hash
-            current_commit=$(git rev-parse HEAD)
-
-            # Get the base commit hash of the pull request
-            base_commit=$(jq -r '.pull_request.base.sha' <<< "${{ toJson(github.event) }}")
-
-            # Get the diff between current commit and base commit for the file
-            diff=$(git diff "$base_commit" "$current_commit" -- "$file" 2>/dev/null)
-
-            # Check if diff is empty
-            if [[ -z "$diff" ]]; then
-              echo "No changes detected for $file. Skipping review."
-              continue
-            fi
-
-            # Escape special characters in diff for Ollama
-            escaped_diff=$(echo "$diff" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | tr '\n' ' ')
-
-            # Generate the review from Ollama
-            review=$(curl -s "${OLLAMA_HOST}/api/generate" \
-              -d '{"model": "'${OLLAMA_MODEL}'", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, and maintainability, and as briefly as possible.:\n\n```\n'"${escaped_diff}"'\n```", "stream": false}' \
-              | jq -r '.response')
-
+            # Get the diff between the current commit and its parent commit
+            content=$(git diff HEAD~1 -- "$file" || echo "Failed to get diff for $file")
+            
+            # Escape special characters in content
+            content=$(echo "$content" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
+            content=$(echo "$content" | tr '\n' ' ')
+            
+            # Generate the review
+            review=$(curl -s http://127.0.0.1:11434/api/generate \
+                -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, maintainability, and as briefly as possible.:\n\n```\n'"${content}"'\n```", "stream": false}' \
+                | jq -r '.response')
+            
             # Prepare the comments
-            if [[ -z "$review" ]]; then
-              comments="Ollama Code Review for \`$file\`: All good!"
+            if [[ $review == "null" ]]; then
+                comments="Ollama Code Review for \`$file\`: All good!"
             else
-              comments="Ollama Code Review for \`$file\`:\n\n$review"
+                comments="Ollama Code Review for \`$file\`:\n\n$review"
+                comments=$(echo -e "$comments")
             fi
 
             # Post the comment to GitHub

@@ -41,7 +41,7 @@ jobs:
             echo $file
             
             # Read the file content
-            content=$(cat "$file")
+            content=$(git diff origin/main -- "$file" || echo "Failed to get diff for $file")
             
             # Escape special characters in content
             content=$(echo "$content" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')

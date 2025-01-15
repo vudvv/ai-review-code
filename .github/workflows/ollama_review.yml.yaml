@@ -54,7 +54,7 @@ jobs:
                 -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, and maintainability.:\n\n```\n'"${content}"'\n```", "stream": false}' \
                 | jq -r '.response')
             
-            echo "Review: $review"
+            # echo "Review: $review"
             
             # Prepare the comments
             if [[ $review == "null" ]]; then
@@ -67,11 +67,12 @@ jobs:
             comments=$(echo "$comments" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
 
             # Post the comment to GitHub
-            curl -s -X POST \
-                -H "Authorization: Bearer $GITHUB_TOKEN" \
-                -H "Accept: application/vnd.github+json" \
-                -d '{"body": "'"$comments"'"}' \
-                https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments
+            gh pr comment ${{ github.event.pull_request.number }} --body "${comments}"
+            # curl -s -X POST \
+            #     -H "Authorization: Bearer $GITHUB_TOKEN" \
+            #     -H "Accept: application/vnd.github+json" \
+            #     -d '{"body": "'"$comments"'"}' \
+            #     https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments
 
           done
         shell: bash

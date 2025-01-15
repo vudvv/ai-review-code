@@ -39,27 +39,38 @@ jobs:
         run: |
           for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
             echo $file
-            # content=$(git diff origin/main -- "$file" || echo "Failed to get diff for $file")
-            # content=$(echo "$content" | sed '/^diff --git/d; /^index /d; /^--- /d; /^\+\+\+ /d; /^@@ /d')
+            
+            # Read the file content
             content=$(cat "$file")
-            content=${content//\'/\'\'}
-            content=${content//\"/\\\"}
+            
+            # Escape special characters in content
+            content=$(echo "$content" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
             content=$(echo "$content" | tr '\n' ' ')
-            echo $content
-            review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, and maintainability.:\n\n```\n'"${content}"'\n```", "stream": false}' | jq -r '.response')
-            echo $review
-            if [[ $review == "null" ]]
-            then
-              comments="Ollama Code Review for \`$file\`: All good!"
+            
+            echo "Cleaned content: $content"
+            
+            # Generate the review
+            review=$(curl -s http://127.0.0.1:11434/api/generate \
+                -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, and maintainability.:\n\n```\n'"${content}"'\n```", "stream": false}' \
+                | jq -r '.response')
+            
+            echo "Review: $review"
+            
+            # Prepare the comments
+            if [[ $review == "null" ]]; then
+                comments="Ollama Code Review for \`$file\`: All good!"
             else
-              comments="Ollama Code Review for \`$file\`:\n\n$review"
-              # Use echo -e to interpret \n as newlines
-              comments=$(echo -e "$comments")
+                comments="Ollama Code Review for \`$file\`:\n\n$review"
             fi
+
+            # Escape special characters for JSON in comments
+            comments=$(echo "$comments" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
+
+            # Post the comment to GitHub
             curl -s -X POST \
-              -H "Authorization: Bearer $GITHUB_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              -d '{"body": "'"$comments"'"}' \
-              https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments
+                -H "Authorization: Bearer $GITHUB_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                -d "{\"body\": \"$comments\"}" \
+                https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments
           done
         shell: bash

@@ -37,10 +37,26 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
         run: |
+          # Determine if this is the first run or subsequent run
+          base_commit=$(jq -r '.pull_request.base.sha' <<< "${{ toJson(github.event) }}")
+          current_commit=$(git rev-parse HEAD)
+          
+          # If the base commit and current commit are the same, this is the first run
+          if [ "$base_commit" = "$current_commit" ]; then
+            comparison_type="main"
+          else
+            comparison_type="commit"
+          fi
+
           for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
-            
-            # Read the file content
-            content=$(git diff origin/main -- "$file" || echo "Failed to get diff for $file")
+            # Get the diff based on the comparison type
+            if [ "$comparison_type" = "main" ]; then
+              # First run: Compare with main branch
+              content=$(git diff origin/main -- "$file" || echo "Failed to get diff for $file")
+            else
+              # Subsequent runs: Compare current commit with pull request branch base
+              content=$(git diff "$base_commit" "$current_commit" -- "$file" || echo "Failed to get diff for $file")
+            fi
             
             # Escape special characters in content
             content=$(echo "$content" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
@@ -48,7 +64,7 @@ jobs:
             
             # Generate the review
             review=$(curl -s http://127.0.0.1:11434/api/generate \
-                -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, maintainability, and as briefly as posible.:\n\n```\n'"${content}"'\n```", "stream": false}' \
+                -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, maintainability, and as briefly as possible.:\n\n```\n'"${content}"'\n```", "stream": false}' \
                 | jq -r '.response')
             
             # Prepare the comments

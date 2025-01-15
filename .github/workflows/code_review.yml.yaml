@@ -48,7 +48,7 @@ jobs:
             
             # Generate the review
             review=$(curl -s http://127.0.0.1:11434/api/generate \
-                -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, and maintainability.:\n\n```\n'"${content}"'\n```", "stream": false}' \
+                -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, maintainability, and as briefly as posible.:\n\n```\n'"${content}"'\n```", "stream": false}' \
                 | jq -r '.response')
             
             # Prepare the comments

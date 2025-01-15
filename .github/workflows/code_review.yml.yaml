@@ -39,7 +39,7 @@ jobs:
         run: |
           for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
             # Get the diff between the current commit and its parent commit
-            content=$(git diff HEAD~1 -- HEAD || echo "Failed to get diff for $file")
+            content=$(git diff HEAD^ -- "$file" || echo "Failed to get diff for $file")
             
             # Escape special characters in content
             content=$(echo "$content" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')

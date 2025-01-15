@@ -38,32 +38,22 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
-          # echo $file
+          echo $file
           content=$(git diff origin/main -- "$file" || echo "Failed to get diff for $file")
           content=${content//\'/\'\'}
           content=${content//\"/\\\"}
           content=$(echo "$content" | tr '\n' ' ')
           echo $content
-          curl="curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "Review code return concise content:\n\n```\n'"${content}"'\n```", "stream": false}'"
-          echo curl
-          # review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "Review this code, provide suggestions for improvement, coding best practices, improve readability, and maintainability. Remove any code smells and anti-patterns. Provide code examples for your suggestion.:\n\n```\n'"${content}"'\n```", "stream": false}' | jq -r '.response')
-          # echo $review
+          review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, and maintainability.:\n\n```\n'"${content}"'\n```", "stream": false}' | jq -r '.response')
+          echo $review
 
-          # if [[ $review == "null" ]]
-          # then
-          #   comments="Ollama Code Review for \`$file\`: All good!"
-          # else
-          #   comments="Ollama Code Review for \`$file\`:\n\n$review"
-          #   # Use echo -e to interpret \n as newlines
-          #   comments=$(echo -e "$comments")
-          # fi
-
-          # gh pr comment ${{ github.event.pull_request.number }} --body "${comments}"
-          # Add the comment to the pull request using GitHub API
-          # curl -s -X POST \
-          #   -H "Authorization: Bearer $GITHUB_TOKEN" \
-          #   -H "Accept: application/vnd.github+json" \
-          #   -d '{"body": "'"$comments"'"}' \
-          #   https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments
+          if [[ $review == "null" ]]
+          then
+            comments="Ollama Code Review for \`$file\`: All good!"
+          else
+            comments="Ollama Code Review for \`$file\`:\n\n$review"
+            # Use echo -e to interpret \n as newlines
+            comments=$(echo -e "$comments")
+          fi
           done
         shell: bash

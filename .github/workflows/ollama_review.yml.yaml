@@ -16,9 +16,12 @@ jobs:
       - name: Get modified files
         id: get-modified-files
         uses: tj-actions/changed-files@v43
-        # with:
-          # This allows us to compare against the base branch, which is 'main'
-          # target-branch: main
+        with:
+          # Avoid using single or double quotes for multiline patterns
+          files: |
+             **.swift
+             **.kt
+             **.java
         
       - name: List all changed files
         env:
@@ -40,9 +43,11 @@ jobs:
           content=${content//\'/\'\'}
           content=${content//\"/\\\"}
           content=$(echo "$content" | tr '\n' ' ')
-          # echo $content
-          review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "Review code return concise content:\n\n```\n'"${content}"'\n```", "stream": false}' | jq -r '.response')
-          echo $review
+          echo $content
+          curl="curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "Review code return concise content:\n\n```\n'"${content}"'\n```", "stream": false}'"
+          echo curl
+          # review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "Review code return concise content:\n\n```\n'"${content}"'\n```", "stream": false}' | jq -r '.response')
+          # echo $review
 
           # if [[ $review == "null" ]]
           # then

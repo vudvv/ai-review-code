@@ -37,26 +37,15 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
         run: |
-          # Determine if this is the first run or subsequent run
-          base_commit=$(jq -r '.pull_request.base.sha' <<< "${{ toJson(github.event) }}")
-          current_commit=$(git rev-parse HEAD)
-          
-          # If the base commit and current commit are the same, this is the first run
-          if [ "$base_commit" = "$current_commit" ]; then
-            comparison_type="main"
-          else
-            comparison_type="commit"
-          fi
-
           for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
-            # Get the diff based on the comparison type
-            if [ "$comparison_type" = "main" ]; then
-              # First run: Compare with main branch
-              content=$(git diff origin/main -- "$file" || echo "Failed to get diff for $file")
-            else
-              # Subsequent runs: Compare current commit with pull request branch base
-              content=$(git diff "$base_commit" "$current_commit" -- "$file" || echo "Failed to get diff for $file")
-            fi
+            # Get the current commit hash
+            current_commit=$(git rev-parse HEAD)
+            
+            # Get the base commit hash of the pull request
+            base_commit=$(jq -r '.pull_request.base.sha' <<< "${{ toJson(github.event) }}")
+            
+            # Get the diff between current commit and base commit for the file
+            content=$(git diff "$base_commit" "$current_commit" -- "$file" || echo "Failed to get diff for $file")
             
             # Escape special characters in content
             content=$(echo "$content" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')

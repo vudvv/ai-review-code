@@ -22,5 +22,4 @@ class ViewController: UIViewController {
         let d = a + b + c
     }
 
-
 }

@@ -38,7 +38,6 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
-            echo $file
             
             # Read the file content
             content=$(git diff origin/main -- "$file" || echo "Failed to get diff for $file")
@@ -47,14 +46,10 @@ jobs:
             content=$(echo "$content" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
             content=$(echo "$content" | tr '\n' ' ')
             
-            echo "Cleaned content: $content"
-            
             # Generate the review
             review=$(curl -s http://127.0.0.1:11434/api/generate \
                 -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, and maintainability.:\n\n```\n'"${content}"'\n```", "stream": false}' \
                 | jq -r '.response')
-            
-            # echo "Review: $review"
             
             # Prepare the comments
             if [[ $review == "null" ]]; then
@@ -68,11 +63,6 @@ jobs:
 
             # Post the comment to GitHub
             gh pr comment ${{ github.event.pull_request.number }} --body "${comments}"
-            # curl -s -X POST \
-            #     -H "Authorization: Bearer $GITHUB_TOKEN" \
-            #     -H "Accept: application/vnd.github+json" \
-            #     -d '{"body": "'"$comments"'"}' \
-            #     https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments
 
           done
         shell: bash

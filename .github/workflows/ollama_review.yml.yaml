@@ -40,12 +40,12 @@ jobs:
           for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
           echo $file
           content=$(git diff origin/main -- "$file" || echo "Failed to get diff for $file")
-          content=$(echo "$content" | sed '/^diff --git/d; /^index /d; /^--- /d; /^\+\+\+ /d; /^@@ /d')
+          # content=$(echo "$content" | sed '/^diff --git/d; /^index /d; /^--- /d; /^\+\+\+ /d; /^@@ /d')
           content=${content//\'/\'\'}
           content=${content//\"/\\\"}
           content=$(echo "$content" | tr '\n' ' ')
           echo $content
-          review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, and maintainability.:\n\n```\n'"${content}"'\n```", "stream": false}')
+          review=$(curl -s http://127.0.0.1:11434/api/generate -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, and maintainability.:${content}", "stream": false}' | jq -r '.response')
           echo $review
           if [[ $review == "null" ]]
           then

@@ -31,19 +31,19 @@ jobs:
             echo "$file was changed"
           done
 
-      - name: Delete existing comments
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          REPO: ${{ github.repository }}
-        run: |
-          # List all comments for the pull request
-          comments=$(gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments --jq '.[].id')
+        # - name: Delete existing comments
+        #   env:
+        #     PR_NUMBER: ${{ github.event.pull_request.number }}
+        #     REPO: ${{ github.repository }}
+        #   run: |
+        #     # List all comments for the pull request
+        #     comments=$(gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments --jq '.[].id')
 
-          # Delete each comment
-          for comment_id in $comments; do
-            echo "Deleting comment ID: $comment_id"
-            gh api -X DELETE repos/${{ github.repository }}/issues/comments/${comment_id}
-          done
+        #     # Delete each comment
+        #     for comment_id in $comments; do
+        #       echo "Deleting comment ID: $comment_id"
+        #       gh api -X DELETE repos/${{ github.repository }}/issues/comments/${comment_id}
+        #     done
         shell: bash
       - name: Review modified files
         env:

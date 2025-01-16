@@ -22,30 +22,22 @@ jobs:
             **.kt
             **.java
 
-      - name: Delete existing comments
+      - name: Delete existing review comments
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
         run: |
-          # List all comments for the pull request
-          comments=$(gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments --jq '.[].id')
+          # List all review comments for the pull request
+          comments=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments --jq '.[].id')
 
-          # Delete each comment
+          # Delete each review comment
           for comment_id in $comments; do
             echo "Deleting comment ID: $comment_id"
-            gh api -X DELETE repos/${{ github.repository }}/issues/comments/${comment_id}
+            gh api -X DELETE repos/${{ github.repository }}/pulls/comments/${comment_id}
           done
         shell: bash
 
-      - name: List all changed files
-        env:
-          ALL_CHANGED_FILES: ${{ steps.get-modified-files.outputs.all_changed_files }}
-        run: |
-          for file in ${ALL_CHANGED_FILES}; do
-            echo "$file was changed"
-          done
-
-      - name: Review modified files
+      - name: Add review comments
         env:
           GITHUB_TOKEN: ${{ secrets.Token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -64,15 +56,18 @@ jobs:
                 -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, maintainability, and as briefly as possible.:\n\n```\n'"${content}"'\n```", "stream": false}' \
                 | jq -r '.response')
             
-            # Prepare the comments
+            # Prepare review comment
             if [[ $review == "null" ]]; then
-                comments="Ollama Code Review for \`$file\`: All good!"
+                comment="Ollama Code Review for \`$file\`: All good!"
             else
-                comments="Ollama Code Review for \`$file\`:\n\n$review"
-                comments=$(echo -e "$comments")
+                comment="Ollama Code Review for \`$file\`:\n\n$review"
+                comment=$(echo -e "$comment")
             fi
 
-            # Post the comment to GitHub
-            gh pr comment ${{ github.event.pull_request.number }} --body "${comments}"
+            # Post the review comment to GitHub
+            gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments \
+              -f body="$comment" \
+              -f path="$file" \
+              -f position=1
           done
         shell: bash

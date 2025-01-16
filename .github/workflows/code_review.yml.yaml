@@ -59,11 +59,15 @@ jobs:
                 comment=$(echo -e "$comment")
             fi
 
+            # Find the first changed line number in the file
+            line_number=$(git diff origin/main -- "$file" | grep -n '^+' | head -n 1 | cut -d ':' -f 1)
+
             # Post the comment to GitHub
             gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments \
-              -f body="$comment" \
+              -f body="Ollama Code Review for \`$file\`:\n\n$review" \
               -f path="$file" \
-              -f position=1
+              -f line="$line_number" \
+              -f commit_id="$commit_id"
 
           done
         shell: bash

@@ -3,12 +3,12 @@ name: Automated Ollama Code Review
 on:
   pull_request:
     branches:
-      - main
+      - jackfruit
 
 jobs:
   ollama_review:
     runs-on: self-hosted
-    name: Ollama Code Review Job
+    name: AI Code Review Job
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -59,9 +59,9 @@ jobs:
             
             # Prepare the comment
             if [[ $review == "null" ]]; then
-                comments="Ollama Code Review for \`$file\`: All good!"
+                comments="AI Code Review for \`$file\`: All good!"
             else
-                comments="Ollama Code Review for \`$file\`:\n\n$review"
+                comments="AI Code Review for \`$file\`:\n\n$review"
                 comments=$(echo -e "$comments")
             fi
 

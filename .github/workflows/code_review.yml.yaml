@@ -56,10 +56,8 @@ jobs:
                 comments="Ollama Code Review for \`$file\`: All good!"
             else
                 comments="Ollama Code Review for \`$file\`:\n\n$review"
+                comments=$(echo -e "$comments")
             fi
-
-            # Escape special characters for JSON in comments
-            comments=$(echo "$comments" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
 
             # Post the comment to GitHub
             gh pr comment ${{ github.event.pull_request.number }} --body "${comments}"

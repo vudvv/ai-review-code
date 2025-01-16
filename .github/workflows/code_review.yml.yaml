@@ -70,7 +70,7 @@ jobs:
                 comments="Ollama Code Review for \`$file\`: All good!"
             else
                 comments="Ollama Code Review for \`$file\`:\n\n$review"
-                comments=$(echo -e "$comment")
+                comments=$(echo -e "$comments")
             fi
 
             # Find the first changed line number in the file

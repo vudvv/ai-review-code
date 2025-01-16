@@ -46,7 +46,7 @@ jobs:
           for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
             
             # Read the file content
-            content=$(git diff origin/main -- "$file" || echo "Failed to get diff for $file")
+            content=$(git diff origin/main -- "$file" | grep '^[+-]' | grep -v '^[+-][+-]' | sed 's/^+//' || echo "Failed to get code changes for $file")
             
             # Escape special characters in content
             content=$(echo "$content" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')

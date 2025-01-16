@@ -17,11 +17,25 @@ jobs:
         id: get-modified-files
         uses: tj-actions/changed-files@v43
         with:
-          # Avoid using single or double quotes for multiline patterns
           files: |
             **.swift
             **.kt
             **.java
+
+      - name: Delete existing comments
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          # List all comments for the pull request
+          comments=$(gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments --jq '.[].id')
+
+          # Delete each comment
+          for comment_id in $comments; do
+            echo "Deleting comment ID: $comment_id"
+            gh api -X DELETE repos/${{ github.repository }}/issues/comments/${comment_id}
+          done
+        shell: bash
 
       - name: List all changed files
         env:
@@ -38,7 +52,6 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
-            
             # Read the file content
             content=$(git diff origin/main -- "$file" || echo "Failed to get diff for $file")
             
@@ -48,7 +61,7 @@ jobs:
             
             # Generate the review
             review=$(curl -s http://127.0.0.1:11434/api/generate \
-                -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, maintainability, and as briefly as posible.:\n\n```\n'"${content}"'\n```", "stream": false}' \
+                -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, maintainability, and as briefly as possible.:\n\n```\n'"${content}"'\n```", "stream": false}' \
                 | jq -r '.response')
             
             # Prepare the comments
@@ -61,6 +74,5 @@ jobs:
 
             # Post the comment to GitHub
             gh pr comment ${{ github.event.pull_request.number }} --body "${comments}"
-
           done
         shell: bash

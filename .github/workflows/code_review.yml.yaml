@@ -23,14 +23,6 @@ jobs:
             **.kt
             **.java
 
-      - name: List all changed files
-        env:
-          ALL_CHANGED_FILES: ${{ steps.get-modified-files.outputs.all_changed_files }}
-        run: |
-          for file in ${ALL_CHANGED_FILES}; do
-            echo "$file was changed"
-          done
-
       - name: Delete existing comments
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -54,12 +46,12 @@ jobs:
           for file in ${{ steps.get-modified-files.outputs.all_changed_files }}; do
             
             # Read the file content
-            content=$(git diff origin/main -- "$file" || echo "Failed to get diff for $file")
+            content=$(git diff origin/main -- "$file" | grep '^[+-]' | grep -v '^[+-][+-]' | sed 's/^+//' || echo "Failed to get code changes for $file")
             
             # Escape special characters in content
             content=$(echo "$content" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
             content=$(echo "$content" | tr '\n' ' ')
-            
+            echo "Content: $content"
             # Generate the review
             review=$(curl -s http://127.0.0.1:11434/api/generate \
                 -d '{"model": "llama3.2", "prompt": "As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, maintainability, and as briefly as posible.:\n\n```\n'"${content}"'\n```", "stream": false}' \
@@ -67,22 +59,14 @@ jobs:
             
             # Prepare the comment
             if [[ $review == "null" ]]; then
-                comment="Ollama Code Review for \`$file\`: All good!"
+                comments="Ollama Code Review for \`$file\`: All good!"
             else
-                comment="Ollama Code Review for \`$file\`:\n\n$review"
-                comment=$(echo -e "$comment")
+                comments="Ollama Code Review for \`$file\`:\n\n$review"
+                comments=$(echo -e "$comments")
             fi
-
-            # Find the first changed line number in the file
-            # line_number=$(git diff origin/main -- "$file" | grep -n '^+' | head -n 1 | cut -d ':' -f 1)
 
             # Post the comment to GitHub
             gh pr comment ${{ github.event.pull_request.number }} --body "${comments}"
-            # gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments \
-            #   -f body="Ollama Code Review for \`$file\`:\n\n$review" \
-            #   -f path="$file" \
-            #   -f line="$line_number" \
-            #   -f commit_id="$commit_id"
 
           done
         shell: bash

@@ -8,35 +8,17 @@ on:
 jobs:
   ollama_review:
     runs-on: self-hosted
-    name: AI Code Review Job
+    name: Ollama Code Review Job
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-
-      - name: Get modified files
-        id: get-modified-files
-        uses: tj-actions/changed-files@v43
-        with:
-          # Avoid using single or double quotes for multiline patterns
-          files: |
-            **.swift
-            **.kt
-            **.java
-
-      - name: List all changed files
-        env:
-          ALL_CHANGED_FILES: ${{ steps.get-modified-files.outputs.all_changed_files }}
-        run: |
-          for file in ${ALL_CHANGED_FILES}; do
-            echo "$file was changed"
-          done
 
       - uses: anc95/ChatGPT-CodeReview@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           # Optional
-          LANGUAGE: Chinese
+          LANGUAGE: English
           OPENAI_API_ENDPOINT: https://api.openai.com/v1
           MODEL: gpt-3.5-turbo # https://platform.openai.com/docs/models
           PROMPT: # example: Please check if there are any confusions or irregularities in the following code diff:
@@ -45,4 +27,8 @@ jobs:
           max_tokens: 10000
           MAX_PATCH_LENGTH: 10000 # if the patch/diff length is large than MAX_PATCH_LENGTH, will be ignored and won't review. By default, with no MAX_PATCH_LENGTH set, there is also no limit for the patch/diff length.
           IGNORE_PATTERNS: /node_modules/**/*,*.md # glob pattern or regex pattern to ignore files, separated by comma
-          INCLUDE_PATTERNS: "*.js,*.ts,*.swift"
+          INCLUDE_PATTERNS: *.js,*.ts # glob pattern or regex pattern to include files, separated by comma
+
+          # IF you are using azure openai
+          AZURE_API_VERSION: xx
+          AZURE_DEPLOYMENT: xx

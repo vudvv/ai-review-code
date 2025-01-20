@@ -13,10 +13,23 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: List Changed Files
+      - name: Get modified files
+        id: get-modified-files
+        uses: tj-actions/changed-files@v43
+        with:
+          # Avoid using single or double quotes for multiline patterns
+          files: |
+            **.swift
+            **.kt
+            **.java
+
+      - name: List all changed files
+        env:
+          ALL_CHANGED_FILES: ${{ steps.get-modified-files.outputs.all_changed_files }}
         run: |
-          echo "Changed files in the PR:"
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }}
+          for file in ${ALL_CHANGED_FILES}; do
+            echo "$file was changed"
+          done
 
       - uses: anc95/ChatGPT-CodeReview@main
         env:

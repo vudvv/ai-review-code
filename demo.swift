@@ -16,6 +16,13 @@ class ViewController: UIViewController {
         let d = a + b + c
     }
 
+    func sum() {
+         let a = 0
+        let b = 1
+        let c = a + b
+        let d = a + b + c
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
          sum()
@@ -63,4 +70,10 @@ func sum() {
         let d = a + b + c
     }
 
+func sum() {
+         let a = 0
+        let b = 1
+        let c = a + b
+        let d = a + b + c
+    }
 }

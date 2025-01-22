@@ -13,6 +13,23 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Get modified files
+        id: get-modified-files
+        uses: tj-actions/changed-files@v43
+        with:
+          # Avoid using single or double quotes for multiline patterns
+          files: |
+            **.swift
+            **.kt
+            **.java
+      - name: List all changed files
+        env:
+          ALL_CHANGED_FILES: ${{ steps.get-modified-files.outputs.all_changed_files }}
+        run: |
+          for file in ${ALL_CHANGED_FILES}; do
+            echo "$file was changed"
+          done
+
       - uses: vudvv/CodeReview@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

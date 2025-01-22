@@ -9,12 +9,6 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-         sum()
-         let a = 0
-    }
-
     func sum() {
          let a = 0
         let b = 1
@@ -22,7 +16,13 @@ class ViewController: UIViewController {
         let d = a + b + c
     }
 
-private func prepareObjecMessageSent(_ object: MesMessageSent) -> MesMessageSent {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+         sum()
+         let a = 0
+    }
+
+    private func prepareObjecMessageSent(_ object: MesMessageSent) -> MesMessageSent {
         if let attachMent = object.message?.attachment {
             let atk = AttachedFile()
             atk.fileId = attachMent.fileId
@@ -56,38 +56,11 @@ private func prepareObjecMessageSent(_ object: MesMessageSent) -> MesMessageSent
         
 }
 
- func sum() {
+func sum() {
          let a = 0
         let b = 1
         let c = a + b
         let d = a + b + c
     }
 
-    func sum() {
-         let a = 0
-        let b = 1
-        let c = a + b
-        let d = a + b + c
-    }
-
-    func sum() {
-         let a = 0
-        let b = 1
-        let c = a + b
-        let d = a + b + c
-    }
-
-    func sum() {
-         let a = 0
-        let b = 1
-        let c = a + b
-        let d = a + b + c
-    }
-
-    func sum() {
-         let a = 0
-        let b = 1
-        let c = a + b
-        let d = a + b + c
-    }
 }

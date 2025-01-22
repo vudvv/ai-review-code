@@ -8,3 +8,10 @@ fun main(args: Array<String>) {
 
     println("You entered: $integer")
 }
+
+func sum() {
+    let a = 0
+   let b = 1
+   let c = a + b
+   let d = a + b + c
+}

@@ -3,7 +3,7 @@ name: Drjoy Code Review
 on:
   pull_request:
     branches:
-      - main
+      - jackfruit
 
 jobs:
   ollama_review:

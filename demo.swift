@@ -9,6 +9,13 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    func sum() {
+         let a = 0
+        let b = 1
+        let c = a + b
+        let d = a + b + c
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
          sum()
@@ -48,5 +55,12 @@ class ViewController: UIViewController {
         object.message?.checkMedicalStaff(self.socketPresenter.medicalStaff)
         
 }
+
+func sum() {
+         let a = 0
+        let b = 1
+        let c = a + b
+        let d = a + b + c
+    }
 
 }

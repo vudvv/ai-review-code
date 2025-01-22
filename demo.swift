@@ -134,3 +134,10 @@ private func prepareObjecMessageSent(_ object: MesMessageSent) -> MesMessageSent
         object.message?.checkMedicalStaff(self.socketPresenter.medicalStaff)
         
 }
+
+func sum() {
+    let a = 0
+   let b = 1
+   let c = a + b
+   let d = a + b + c
+}

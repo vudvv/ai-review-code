@@ -1,4 +1,4 @@
-name: Automated Ollama Code Review
+name: Drjoy Code Review
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
 jobs:
   ollama_review:
     runs-on: self-hosted
-    name: AI Code Review Job
+    name: Drjoy Code Review
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -31,27 +31,14 @@ jobs:
             echo "$file was changed"
           done
 
-      - uses: anc95/ChatGPT-CodeReview@main
+      - uses: vudvv/CodeReview@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OLLAMA_API_URL: http://127.0.0.1:11434
           LANGUAGE: English
-          OPENAI_API_ENDPOINT: https://api.openai.com/v1
-          MODEL: gpt-4o-mini # https://platform.openai.com/docs/models
-          PROMPT: Please check if there are any confusions or irregularities in the following code diff
-          top_p: 1 # https://platform.openai.com/docs/api-reference/chat/create#chat/create-top_p
-          temperature: 1 # https://platform.openai.com/docs/api-reference/chat/create#chat/create-temperature
-          max_tokens: 10000
+          MODEL: llama3.2
+          PROMPT: As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, maintainability, and as briefly as posible.
           MAX_PATCH_LENGTH: 10000 # if the patch/diff length is large than MAX_PATCH_LENGTH, will be ignored and won't review. By default, with no MAX_PATCH_LENGTH set, there is also no limit for the patch/diff length.
           IGNORE_PATTERNS: /node_modules/**/*,*.md # glob pattern or regex pattern to ignore files, separated by comma
           INCLUDE_PATTERNS: "*.js,*.swift,*.kt"
-
-      - name: Post Comment as AI-Review Bot
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          curl -X POST \
-          -H "Authorization: Bearer $GITHUB_TOKEN" \
-          -H "Content-Type: application/json" \
-          -d '{"body": "**AI-Review Bot**: This PR looks great! Let me know if you need further assistance."}' \
-          "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments"
+          TARGET_LABEL: "AI-REVIEW"

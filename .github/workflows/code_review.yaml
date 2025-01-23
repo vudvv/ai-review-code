@@ -24,3 +24,4 @@ jobs:
           IGNORE_PATTERNS: /node_modules/**/*,*.md # glob pattern or regex pattern to ignore files, separated by comma
           INCLUDE_PATTERNS: "*.js,*.swift,*.kt"
           TARGET_LABEL: "AI-REVIEW"
+          COMMENT_TEXT: "Code review by DRJOY AI"

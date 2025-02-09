@@ -22,7 +22,7 @@ jobs:
           done
       - name: Read review criteria from file
         id: read_criteria
-        run: echo "PROMPT_DRJOY=$(cat review_criteria.txt | tr '\n' ' ')" >> $GITHUB_ENV
+        run: echo "PROMPT_DRJOY=$(cat .github/workflows/review_criteria.txt | tr '\n' ' ')" >> $GITHUB_ENV
 
       - uses: vudvv/CodeReview@main
         env:

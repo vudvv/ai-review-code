@@ -40,8 +40,8 @@ jobs:
           OLLAMA_API_URL: http://127.0.0.1:11434
           LANGUAGE: English
           MODEL: llama3.2
-          PROMPT: As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, maintainability, and as briefly as posible.
-          PROMPT_DRJOY: ${{ env.PROMPT_DRJOY }}
+          PROMPT: ${{ env.PROMPT_DRJOY }}
+          PROMPT_DRJOY: As a software engineer, please review the following code, provide suggestions for improvement, coding best practices, improve readability, maintainability, and as briefly as posible.
           MAX_PATCH_LENGTH: 10000 # if the patch/diff length is large than MAX_PATCH_LENGTH, will be ignored and won't review. By default, with no MAX_PATCH_LENGTH set, there is also no limit for the patch/diff length.
           IGNORE_PATTERNS: /node_modules/**/*,*.md # glob pattern or regex pattern to ignore files, separated by comma
           INCLUDE_PATTERNS: "*.js,*.swift,*.kt"

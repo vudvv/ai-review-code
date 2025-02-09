@@ -1,4 +1,3 @@
-Prompt:
 Hãy review code iOS Swift theo các tiêu chí sau:
 
 Quản lý text và constants:
@@ -18,5 +17,10 @@ Tối ưu và dọn dẹp code:
 Xử lý UI & hiệu năng:
 
 9. Update UI phải được thực hiện trên Main Thread.
-20. Tránh chạy các task nặng trên Main Thread để không ảnh hưởng đến hiệu năng ứng dụng.
+10. Tránh chạy các task nặng trên Main Thread để không ảnh hưởng đến hiệu năng ứng dụng.
 Hãy kiểm tra code dựa trên các tiêu chí trên và đưa ra nhận xét cụ thể cho từng lỗi nếu có.
+
+Trả về kết quả theo example bên dưới
+1. Pass
+2. Pass
+3. Fail

@@ -1,0 +1,26 @@
+Hãy review code iOS Swift theo các tiêu chí sau:
+
+Quản lý text và constants:
+
+1. Không được hardcode text trực tiếp trong code, file .xib, .storyboard.
+2. Tất cả text phải được định nghĩa trong file Localizable.strings.
+3. Tất cả constants phải được định nghĩa trong Const.swift.
+4. Font phải được quản lý trong FontExtensions.swift.
+Nguyên tắc thiết kế code:
+
+5. Một class hoặc method chỉ nên chịu trách nhiệm cho một nhiệm vụ cụ thể (Single Responsibility Principle).
+6. Khi thêm feature mới, tránh chỉnh sửa code hiện tại nếu không cần thiết. Feature mới nên được viết trong một class hoặc method mới.
+7. Không được để code lặp lại (DRY - Don't Repeat Yourself).
+Tối ưu và dọn dẹp code:
+
+8. Xóa code không sử dụng, method trống, biến không dùng, comment lỗi thời.
+Xử lý UI & hiệu năng:
+
+9. Update UI phải được thực hiện trên Main Thread.
+10. Tránh chạy các task nặng trên Main Thread để không ảnh hưởng đến hiệu năng ứng dụng.
+Hãy kiểm tra code dựa trên các tiêu chí trên và đưa ra nhận xét cụ thể cho từng lỗi nếu có.
+
+Trả về kết quả theo example bên dưới
+1. Pass
+2. Pass
+3. Fail
